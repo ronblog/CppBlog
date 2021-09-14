@@ -2,7 +2,7 @@
 Readme
 build kafka g++ -std=c++14 consumer2.cpp  -lrdkafka++
 
-
+```
  1  cd ..
     2  cd kafka/bin/
     3  ./kafka-topics.sh --create --zonkeeper localhost:2181 --replication-factor 1 --partition 1 --topic test
@@ -13,4 +13,7 @@ build kafka g++ -std=c++14 consumer2.cpp  -lrdkafka++
     8  ./kafka-topics.sh --list --zookeeper localhost:2181 
     9  history
     ./kafka-console-producer.sh  --broker-list localhost:9092 --topic test
+    
+    ./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test --from-beginning
 
+```
