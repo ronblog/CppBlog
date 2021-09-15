@@ -1,0 +1,8 @@
+# ignore all exe
+*.exe
+c11/*.exe
+
+#ignore all .o .obj
+*.o
+*.obj
+*.out
