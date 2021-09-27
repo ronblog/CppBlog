@@ -20,7 +20,6 @@ static void sigterm (int sig) {
     run = false;
 }
  
- 
 class ExampleEventCb : public RdKafka::EventCb {
 public:
     void event_cb (RdKafka::Event &event) {
@@ -57,7 +56,6 @@ public:
 };
  
 void msg_consume(RdKafka::Message* message, void* opaque) {
-    //std::cout << "===msg ===" << std::endl;
     switch (message->err()) {
     case RdKafka::ERR__TIMED_OUT:
         //std::cerr << "RdKafka::ERR__TIMED_OUT"<<std::endl;
@@ -84,8 +82,7 @@ void msg_consume(RdKafka::Message* message, void* opaque) {
             std::cout << "Key: " << *message->key() << std::endl;
         }
         if (verbosity >= 1) {
-             std::cout << "Timestamp: "  << " " << ts.timestamp << std::endl;
-            printf("aaa %d.%s\n",
+            printf("%.*s\n",
                    static_cast<int>(message->len()),
                    static_cast<const char *>(message->payload()));
         }
@@ -123,7 +120,7 @@ public:
 int main () {
     std::string brokers = "localhost";
     std::string errstr;
-    std::string topic_str="test123";
+    std::string topic_str="test";
     std::vector<std::string> topics;
     std::string group_id="101";
  
@@ -136,22 +133,20 @@ int main () {
          }
  
     topics.push_back(topic_str);
-    topics.push_back("test");
    //bootstrap.servers可以替换为metadata.broker.list
     conf->set("bootstrap.servers", brokers, errstr);
  
     ExampleConsumeCb ex_consume_cb;
     conf->set("consume_cb", &ex_consume_cb, errstr);
+ 
     ExampleEventCb ex_event_cb;
     conf->set("event_cb", &ex_event_cb, errstr);
     conf->set("default_topic_conf", tconf, errstr);
-    // todo);
  
     signal(SIGINT, sigterm);
     signal(SIGTERM, sigterm);
  
     RdKafka::KafkaConsumer *consumer = RdKafka::KafkaConsumer::create(conf, errstr);
-    consumer->seek(consumer->assignment());
     if (!consumer) {
         std::cerr << "Failed to create consumer: " << errstr << std::endl;
         exit(1);
