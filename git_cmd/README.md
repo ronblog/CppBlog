@@ -9,3 +9,4 @@ $ git log --oneline
 ```
 For test 1
 '''
+git status
