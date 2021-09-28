@@ -8,4 +8,7 @@ $ git log --oneline
 
 ```
 For test 1
+
 '''
+ git log --oneline
+ git revert <head>
