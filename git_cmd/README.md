@@ -27,6 +27,7 @@ For test 1
 '''
 
 git log --oneline
+git log --oneline
 git revert <head>
 git push
 
@@ -37,3 +38,4 @@ git reset --hard HARD^
 
 //submode - test
 test --1
+Again 3
