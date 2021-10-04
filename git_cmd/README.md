@@ -37,16 +37,4 @@ undo last one
 git reset --hard HARD^
 
 //submode - test
-test --1
-
-Again 3
-
-test - 2
-
-
-again 4
-
-
-ggg test
-
-agian 4
+sub module test 10/04
