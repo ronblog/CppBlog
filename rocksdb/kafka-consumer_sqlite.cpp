@@ -7,6 +7,11 @@
 
 #include <D:\3rdLib\librdkafka\src-cpp\rdkafkacpp.h>
 
+#include "D:\\3rdLib\\include\\sqlite\\sqlite3.h"
+#include <iostream>
+using namespace std;
+sqlite3 *pDB = NULL;
+
 static bool run = true;
 static bool exit_eof = true;
 static int eof_cnt = 0;
@@ -16,6 +21,65 @@ static long msg_cnt = 0;
 static int64_t msg_bytes = 0;
 
 static void sigterm(int sig) { run = false; }
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+  int i;
+  for (i = 0; i < argc; i++) {
+    printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+  }
+  printf("\n");
+  return 0;
+}
+void queryDB() {
+  /* Create SQL statement */
+  char *zErrMsg = 0;
+  string sql = "SELECT * from COMPANY";
+
+  /* Execute SQL statement */
+  const char *data = "Callback function called";
+  int rc = sqlite3_exec(pDB, sql.c_str(), callback, (void *)data, &zErrMsg);
+
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+  } else {
+    fprintf(stdout, "========Operation done successfully==========\n");
+  }
+}
+
+void insertData(string sql) {
+  /* Execute SQL statement */
+  char *zErrMsg = 0;
+  int rc = sqlite3_exec(pDB, sql.c_str(), callback, 0, &zErrMsg);
+
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+  } else {
+    fprintf(stdout, "Records created successfully\n");
+  }
+}
+
+void createDBTable(string sql) {
+  /* Execute SQL statement */
+  char *zErrMsg = 0;
+  int rc = sqlite3_exec(pDB, sql.c_str(), callback, 0, &zErrMsg);
+
+  if (rc != SQLITE_OK) {
+    fprintf(stderr, "SQL error: %s\n", zErrMsg);
+    sqlite3_free(zErrMsg);
+  } else {
+    fprintf(stdout, "Table created successfully\n");
+  }
+}
+
+void openSQLite() {
+  int nRes = sqlite3_open(":memory:", &pDB);
+  if (nRes != SQLITE_OK) {
+    cout << "Open database fail: " << sqlite3_errmsg(pDB);
+  } else
+    cout << "Opend" << endl;
+}
 
 class ExampleEventCb : public RdKafka::EventCb {
 public:
@@ -83,8 +147,14 @@ void msg_consume(RdKafka::Message *message, void *opaque) {
     if (verbosity >= 1) {
       std::cout << "Timestamp: "
                 << " " << ts.timestamp << std::endl;
-      printf("rong %d.%s\n", static_cast<int>(message->len()),
+      printf("aaa %d.%s\n", static_cast<int>(message->len()),
              static_cast<const char *>(message->payload()));
+
+      string sql = "INSERT INTO COMPANY (ID,NAME) VALUES (" +
+                   to_string(msg_cnt) + ", '" +
+                   static_cast<const char *>(message->payload()) + "' ); ";
+      insertData(sql);
+      queryDB();
     }
     break;
 
@@ -118,6 +188,13 @@ public:
 };
 
 int main() {
+
+  openSQLite();
+  string sql = "CREATE TABLE COMPANY("
+               "ID INT PRIMARY KEY     NOT NULL,"
+               "NAME           TEXT    NOT NULL );";
+
+  createDBTable(sql);
   std::string brokers = "localhost";
   std::string errstr;
   std::string topic_str = "test123";
