@@ -6,6 +6,11 @@ $ git log --pretty=oneline --abbrev-commit
 $ git reset --soft HEAD~1
 $ git log --oneline
 
+//undo all local changes
+git reset --hard origin/master
+
+hahahah
+
 ```
 rebase a submodule
 cd cosmos/schemas
